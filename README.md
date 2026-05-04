@@ -26,6 +26,8 @@ catapulta-arduino/
 │   │       ├── motor_de_passo.ino   # Teste básico de rotação
 │   │       └── test.ino             # Protótipo inicial
 │
+├── logica_lancamento.jpg        # Diagrama do fluxo de lançamento
+├── logica_app_motor.jpg         # Diagrama da arquitetura do app
 └── README.md                    # Este arquivo
 ```
 
@@ -59,6 +61,8 @@ catapulta-arduino/
 
 ## 🚀 Fluxo de lançamento
 
+![Lógica de Lançamento](logica_lancamento.jpg)
+
 ```
 1. App envia "TRAVAR"
    └─ Motor A energiza as bobinas e segura o braço pelo torque
@@ -74,6 +78,8 @@ catapulta-arduino/
 ---
 
 ## 📱 App Flutter
+
+![Arquitetura do App](logica_app_motor.jpg)
 
 ### Pré-requisitos
 - Flutter SDK 3.x instalado
