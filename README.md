@@ -137,7 +137,12 @@ Use a tela de Calibracao do app para enviar passos manuais, meca a distancia rea
 
 ## Equipe — Turma B2
 
-> Preencha com os nomes do grupo
+- Gustavo Alves
+- Miguel Sadoc
+- Nicolas Negreli
+- Pedro Nojima
+- Peryllo Vargas
+- Raimundo Nonato
 
 ---
 
