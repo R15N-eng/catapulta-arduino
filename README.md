@@ -1,171 +1,144 @@
-# 🏹 Catapulta ESP32 — IME 2026
+# LEVIATHAN — Catapulta IME 2026
 
-Projeto de engenharia desenvolvido para a **Competição de Catapultas 2026**.
-Catapulta construída com palitos de picolé, controlada via **Bluetooth ou Wi-Fi** por um app Android desenvolvido em Flutter.
+Projeto de engenharia desenvolvido para a **Competicao de Catapultas 2026 — IME**.
+Catapulta construida com palitos de picole, controlada via **Bluetooth (HC-05)** por um app Android desenvolvido em Flutter.
 
 ---
 
-## 📁 Estrutura do repositório
+## Estrutura do repositorio
 
 ```
-catapulta-arduino/
-├── catapulta_app/               # App Android (Flutter)
-│   ├── lib/
-│   │   └── main.dart            # Código completo do app
-│   ├── android/
-│   │   └── app/src/main/
-│   │       └── AndroidManifest.xml
-│   ├── pubspec.yaml
-│   └── README_APP.md
-│
-├── catapulta-arduino/           # Firmware ESP32
-│   ├── src/
-│   │   ├── catapulta_main/
-│   │   │   └── catapulta_main.ino   # Código principal
-│   │   └── testes/
-│   │       ├── motor_de_passo.ino   # Teste básico de rotação
-│   │       └── test.ino             # Protótipo inicial
-│
-├── logica_lancamento.jpg        # Diagrama do fluxo de lançamento
-├── logica_app_motor.jpg         # Diagrama da arquitetura do app
-└── README.md                    # Este arquivo
+catapulta/
+├── lib/src/
+│   ├── pages/
+│   │   ├── home_page.dart          # Tela principal (LEVIATHAN)
+│   │   ├── calibracao_page.dart    # Tela de calibracao (passos manuais)
+│   │   ├── devices_page.dart       # Selecao do dispositivo Bluetooth
+│   │   └── main_page.dart          # Navegacao entre telas
+│   ├── controllers/
+│   │   └── catapult_controller.dart
+│   └── services/
+│       └── bluetooth_service.dart
+├── arduino/
+│   └── catapulta_arduino/
+│       └── catapulta_arduino.ino   # Firmware Arduino UNO + HC-05
+├── assets/
+│   └── icon/
+│       └── leviathan_icon.png      # Icone do app
+├── android/
+└── pubspec.yaml
 ```
 
 ---
 
-## ⚙️ Hardware
+## Hardware
 
-| Componente | Função |
+| Componente | Funcao |
 |---|---|
-| ESP32 Dev Module | Microcontrolador principal |
-| Motor de passo A (28BYJ-48) | Trava e solta o braço pelo torque |
-| Motor de passo B (28BYJ-48) | Estica o elástico até o ângulo calculado |
+| Arduino UNO | Microcontrolador principal |
+| HC-05 | Modulo Bluetooth classico |
+| Motor de passo 1 (28BYJ-48) | Tensiona o elastico (angulo de lancamento) |
+| Motor de passo 2 (28BYJ-48) | Trava e solta o braco (torque) |
 | 2x Driver ULN2003 | Aciona os motores de passo |
-| LED Verde | Indica sistema travado / pronto |
-| LED Vermelho | Indica operação em andamento |
-| Botão físico | Liga/desliga o sistema (Requisito 8) |
-| Elástico de látex | Elemento de propulsão |
-| Esfera de aço | Projétil fornecido pelos professores |
+| LED Verde (pino 12) | Sistema travado / pronto para lancar |
+| LED Vermelho (pino 13) | Operacao em andamento |
+| Elastico de latex | Elemento de propulsao |
+| Esfera de aco | Projetil fornecido pelos professores |
 
 ### Mapeamento de pinos
 
-| Componente | Pinos ESP32 |
+| Componente | Pinos Arduino |
 |---|---|
-| Motor A — trava | 19, 18, 5, 17 |
-| Motor B — tensão | 16, 4, 2, 15 |
-| LED Verde | 25 |
-| LED Vermelho | 26 |
-| Botão físico liga/desliga | 34 |
+| Motor 1 — tensao do elastico | 8, 9, 10, 11 |
+| Motor 2 — trava/solta o braco | 4, 5, 6, 7 |
+| HC-05 RX (software serial) | 2 (RX), 3 (TX) |
+| LED Verde | 12 |
+| LED Vermelho | 13 |
 
 ---
 
-## 🚀 Fluxo de lançamento
+## Protocolo Bluetooth
 
-![Lógica de Lançamento](logica_lancamento.jpg)
+Comandos enviados pelo app como texto + `\n`:
 
-```
-1. App envia "TRAVAR"
-   └─ Motor A energiza as bobinas e segura o braço pelo torque
-
-2. [Manual] Encaixar o elástico no braço
-
-3. App envia "LANCAR:150" (distância desejada em cm)
-   └─ Motor B gira até o ângulo calculado → estica o elástico
-   └─ Motor A gira levemente → braço solta → lançamento!
-   └─ Motor B volta automaticamente à posição zero
-```
-
----
-
-## 📱 App Flutter
-
-![Arquitetura do App](logica_app_motor.jpg)
-
-### Pré-requisitos
-- Flutter SDK 3.x instalado
-- Celular Android com Bluetooth clássico habilitado
-
-### Como rodar
-```bash
-cd catapulta_app
-flutter pub get
-flutter run           # celular conectado via USB
-flutter build apk     # gera o APK para instalar no celular
-```
-
-### Comandos enviados ao ESP32
-
-| Comando | Descrição |
+| Valor | Acao |
 |---|---|
-| `TRAVAR` | Trava o braço na posição horizontal |
-| `LANCAR:<cm>` | Estica e lança mirando a distância (ex: `LANCAR:150`) |
-| `RESET` | Reset de emergência — Motor B volta ao zero |
-| `STATUS` | Retorna o estado atual da catapulta |
-| `CALIBRAR:<fator>` | Atualiza o fator de calibração sem recompilar (ex: `CALIBRAR:0.72`) |
+| `0` a `100` | Define distancia alvo em % (0.5 m a 4.0 m) |
+| `101` | TRAVAR — Motor 2 segura o braco pelo torque |
+| `102` | LANCAR — Motor 1 estica + Motor 2 solta + reset automatico |
+| `103` | RESET de emergencia — volta tudo ao inicio |
 
-### Respostas do ESP32
+Respostas do Arduino:
 
 | Resposta | Significado |
 |---|---|
-| `OK:TRAVADO` | Braço travado — pode encaixar o elástico |
-| `OK:ESTICANDO` | Motor B girando |
-| `OK:LANCANDO` | Motor A soltando o braço |
-| `OK:RESETANDO` | Motor B voltando à posição zero |
-| `OK:PRONTO` | Ciclo concluído — pronto para novo lançamento |
-| `ERRO:*` | Erro com descrição detalhada |
+| `OK:DISTANCIA_DEFINIDA` | Distancia configurada com sucesso |
+| `OK:TRAVADO` | Braco travado — encaixar o elastico |
+| `OK:ESTICANDO` | Motor 1 girando |
+| `OK:LANCANDO` | Motor 2 soltando o braco |
+| `OK:RESETANDO` | Motores voltando a posicao zero |
+| `OK:PRONTO` | Ciclo concluido — pronto para novo lancamento |
+| `ERRO:DEFINA_DISTANCIA_PRIMEIRO` | Envie 0-100 antes de travar |
+| `ERRO:TRAVE_PRIMEIRO` | Envie 101 antes de lancar |
+
+### Fluxo de uso
+
+```
+1. Enviar 0-100  →  define a distancia alvo
+2. Enviar 101    →  Motor 2 trava o braco
+3. [Manual]      →  encaixar o elastico
+4. Enviar 102    →  Motor 1 estica, Motor 2 solta, motores resetam
+```
 
 ---
 
-## 🔌 Firmware ESP32
+## App Flutter — LEVIATHAN
 
-### Dependências (Arduino IDE)
-1. **Placa:** ESP32 Dev Module — instalar via Boards Manager com a URL:
-   ```
-   https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
-   ```
-2. **Biblioteca:** Stepper — instalar via Library Manager
-3. `BluetoothSerial.h` — já inclusa no pacote ESP32
+- Requer Android com Bluetooth classico (BT 2.x / HC-05)
+- Tela **CONTROLE**: define distancia, trava e lanca
+- Tela **CALIBRACAO**: envia numero de passos manualmente para aferir a relacao passos x distancia
 
-### Configuração antes de compilar
-Edite as linhas abaixo no arquivo `catapulta_main.ino`:
-```cpp
-const char* WIFI_SSID     = "NomeDaSuaRede";
-const char* WIFI_PASSWORD = "SenhaDaRede";
-```
+### Gerar APK
 
-### Calibração
-A conversão de distância para ângulo usa o fator:
-```cpp
-float FATOR_CALIBRACAO = 0.5;  // graus por cm — ajustar após testes
+```bash
+cd catapulta
+flutter pub get
+flutter build apk --release --target-platform android-arm64   # 64-bit
+flutter build apk --release --target-platform android-arm     # 32-bit
 ```
-Durante os testes, é possível atualizar sem recompilar enviando pelo app:
-```
-CALIBRAR:0.72
-```
-Faça lançamentos com diferentes valores, meça a distância real e ajuste o fator até os resultados baterem.
 
 ---
 
-## 📋 Requisitos atendidos
+## Calibracao
+
+Os valores a ajustar no firmware sao:
+
+```cpp
+const long PASSOS_MIN = 256;   // passos para lancar ~0,5 m
+const long PASSOS_MAX = 2048;  // passos para lancar ~4,0 m
+```
+
+Use a tela de Calibracao do app para enviar passos manuais, meca a distancia real e ajuste as constantes acima ate os resultados baterem.
+
+---
+
+## Requisitos atendidos
 
 | Requisito | Status | Detalhe |
 |---|---|---|
-| R1 — Materiais fornecidos | ✅ | Palitos, ESP32, motores de passo, elástico, esfera |
-| R2 — Controle pelo celular | ✅ | App Flutter via Bluetooth clássico e Wi-Fi TCP |
-| R3 — Alimentação por pilhas | ✅ | Sem conexão a tomadas ou computador |
-| R4 — Distância 0,5 a 4 m | ✅ | Faixa de 50 a 400 cm validada no firmware |
-| R5 — Alvo no mesmo nível | ✅ | Considerado no projeto mecânico |
-| R6 — Esfera de aço | ✅ | Projétil fornecido pelos professores |
-| R8 — Botão liga/desliga | ✅ | Pino 34 com debounce, externo à caixa |
+| R1 — Materiais fornecidos | OK | Palitos, Arduino, motores, elastico, esfera |
+| R2 — Controle pelo celular | OK | App Flutter via Bluetooth HC-05 |
+| R3 — Alimentacao por pilhas | OK | Sem conexao a tomadas |
+| R4 — Distancia 0,5 a 4 m | OK | Mapeado de 0 a 100% no protocolo |
+| R5 — Alvo no mesmo nivel | OK | Considerado no projeto mecanico |
+| R6 — Esfera de aco | OK | Projetil fornecido pelos professores |
 
 ---
 
-## 👥 Equipe
+## Equipe — Turma B2
 
 > Preencha com os nomes do grupo
 
 ---
 
-## 📄 Licença
-
-Projeto acadêmico — IME 2026
+Projeto academico — IME 2026
