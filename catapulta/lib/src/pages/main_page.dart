@@ -50,10 +50,9 @@ class _MainPageState extends State<MainPage> {
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (index) async {
-            if (index == 0) {
-              await _controller.entrarModoNormal();
-            } else if (index == 1) {
-              await _controller.entrarModoCalibracao();
+            if (_controller.isConnected) {
+              if (index == 0) await _controller.entrarModoNormal();
+              if (index == 1) await _controller.entrarModoCalibracao();
             }
             setState(() => _currentIndex = index);
           },
