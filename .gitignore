@@ -1,0 +1,13 @@
+# Pastas antigas / outros projetos
+catapulta_app/
+catapulta_main/
+catapulta-arduino/
+
+# Imagens e docs avulsos na raiz
+*.jpg
+*.jpeg
+*.pdf
+
+# OS
+.DS_Store
+Thumbs.db
