@@ -34,9 +34,11 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   Future<void> _connectTo(BluetoothDevice device) async {
-    setState(() => _connectingAddress = device.address);
+    (() => _connectingAddress = device.address);
     try {
       await widget.controller.connect(device);
+    // sincroniza o modo com a página inicial (CONTROLO = modo normal)
+      await widget.controller.entrarModoNormal();
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
       if (mounted) {
