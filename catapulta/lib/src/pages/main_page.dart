@@ -49,7 +49,14 @@ class _MainPageState extends State<MainPage> {
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
-          onTap: (index) => setState(() => _currentIndex = index),
+          onTap: (index) async {
+            if (index == 0) {
+              await _controller.entrarModoNormal();
+            } else if (index == 1) {
+              await _controller.entrarModoCalibracao();
+            }
+            setState(() => _currentIndex = index);
+          },
           backgroundColor: Colors.transparent,
           elevation: 0,
           selectedItemColor: neonBlue,

@@ -38,13 +38,19 @@ class CatapultController {
     await _bluetoothService.sendValue(103);
   }
 
-  // Modo calibração: envia 503 seguido dos passos brutos
-  Future<void> testar(int passos) async {
+
+  Future<void> entrarModoCalibracao() async {
     await _bluetoothService.sendValue(503);
-    await Future.delayed(const Duration(milliseconds: 300));
+  }
+
+  Future<void> entrarModoNormal() async {
+    await _bluetoothService.sendValue(504);
+  }
+
+  // testar() fica assim, sem o 500 no final:
+  Future<void> testar(int passos) async {
     await _bluetoothService.sendValue(passos);
     await Future.delayed(const Duration(milliseconds: 300));
-    await _bluetoothService.sendValue(500);
   }
 
 }
