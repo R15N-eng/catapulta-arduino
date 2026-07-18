@@ -5,7 +5,7 @@ Catapulta automatizada de precisão construída em palitos de picolé, controlad
 O sistema acerta alvos entre **0,5 m e 4 m**, com alcance definido por software: o operador escolhe a distância no app, e o firmware traduz o valor no número de passos do motor que tensiona o elástico. Alimentação autônoma por pilhas, sem conexão à rede elétrica durante a competição.
 
 <p align="center">
-  <img src="docs/vista-lateral.png" alt="Vista lateral da catapulta (modelagem SolidWorks)" width="70%">
+  <img src="Fotos/vista-lateral.png" alt="Vista lateral da catapulta (modelagem SolidWorks)" width="70%">
 </p>
 
 ---
@@ -28,8 +28,8 @@ O planejamento seguiu boas práticas do Guia PMBOK® (declaração de escopo, EA
 
 ```
 App Flutter (Android)  ──Bluetooth SPP──►  Arduino UNO  ──►  Motor 1 (tensiona o elástico)
-   CONTROLE / CALIBRAÇÃO                        │           ──►  Motor 2 (trava e solta o braço)
-                                                │           ──►  LEDs de estado (verde / vermelho)
+CONTROLE / CALIBRAÇÃO                        │           ──►  Motor 2 (trava e solta o braço)
+│           ──►  LEDs de estado (verde / vermelho)
 ```
 
 O app envia comandos numéricos por Bluetooth clássico; o firmware interpreta cada comando, aciona os motores de passo e sinaliza o estado por LEDs.
@@ -59,7 +59,7 @@ O app envia comandos numéricos por Bluetooth clássico; o firmware interpreta c
 | LED vermelho | 13 |
 
 <p align="center">
-  <img src="docs/circuito.png" alt="Diagrama de ligações do circuito eletrônico" width="80%">
+  <img src="Fotos/circuito.png" alt="Diagrama de ligações do circuito eletrônico" width="80%">
 </p>
 
 ---
