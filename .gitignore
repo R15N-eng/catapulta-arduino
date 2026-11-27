@@ -11,3 +11,33 @@ catapulta-arduino/
 # OS
 .DS_Store
 Thumbs.db
+
+# Flutter / Dart (gerados)
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+flutter_*.png
+**/GeneratedPluginRegistrant.java
+
+# Android / IDE (locais)
+local.properties
+.idea/
+*.iml
+**/android/.gradle/
+**/android/captures/
+
+# Credenciais e assinatura
+.env
+.env.*
+!.env.example
+key.properties
+*.jks
+*.keystore
+
+# Perfis de navegador e logs
+chrome-device/
+*.log
